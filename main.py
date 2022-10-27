@@ -12,10 +12,14 @@ my_telebot = MyTelebot()
 
 # functions
 
+def generate_buttons(btns_names, markup):
+    for btn_name in btns_names:
+        markup.add(types.KeyboardButton(btn_name))
+    return markup
 @bot.message_handler(commands=['start'])
 def start_message(message):
     markup = types.ReplyKeyboardMarkup(row_width=2)
-    markup.add(types.KeyboardButton('info'))
+    generate_buttons(['info'], markup)
     bot.send_message(message.chat.id, "Привет, меня зовут Джон, и я являюсь твоим помощником. "+
     "Ознакомиться с моими возможностями можно нажав на кнопку 'info'.", reply_markup=markup)
 
@@ -24,8 +28,7 @@ def start_message(message):
 @bot.message_handler(commands=['calc'])
 def calc_message(message):
     markup = types.ReplyKeyboardMarkup(row_width=2)
-    markup.add(types.KeyboardButton('Да'))
-    markup.add(types.KeyboardButton('Нет'))
+    generate_buttons(['Да', 'Нет'], markup)
     bot.send_message(message.chat.id, 'Для работы калькулятора нужно ввести значения и оператор.')
     bot.send_message(message.chat.id, 'Готовы приступить?', reply_markup=markup)
     bot.register_next_step_handler(message, calc_answer)
@@ -35,6 +38,8 @@ def calc_answer(message):
     if message.text == 'Да' and not my_telebot.calc_command:
         my_telebot.set_operation('Калькулятор')
         bot.send_message(message.chat.id, 'Введите первое число')
+    if message_text != 'Да' or message_text != 'Нет' and not my_telebot.calc_command:
+        markup = types.ReplyKeyboardMarkup(row_width=2)
 
 # dollarex
 
