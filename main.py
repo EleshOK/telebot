@@ -16,6 +16,7 @@ def generate_buttons(btns_names, markup):
     for btn_name in btns_names:
         markup.add(types.KeyboardButton(btn_name))
     return markup
+
 @bot.message_handler(commands=['start'])
 def start_message(message):
     markup = types.ReplyKeyboardMarkup(row_width=2)
@@ -35,10 +36,13 @@ def calc_message(message):
 
 def calc_answer(message):
     message_text = None
+    generate_buttons(['Да', 'Нет'], markup)
     if message.text == 'Да' and not my_telebot.calc_command:
         my_telebot.set_operation('Калькулятор')
         bot.send_message(message.chat.id, 'Введите первое число')
     if message_text != 'Да' or message_text != 'Нет' and not my_telebot.calc_command:
+        bot.send_message('Извини, я тебя не понял')
+        bot.register_next_step_handler(message, calc_answer)
         markup = types.ReplyKeyboardMarkup(row_width=2)
 
 # dollarex
