@@ -29,21 +29,41 @@ def start_message(message):
 @bot.message_handler(commands=['calc'])
 def calc_message(message):
     markup = types.ReplyKeyboardMarkup(row_width=2)
-    generate_buttons(['Да', 'Нет'], markup)
+    markup = generate_buttons(['Да', 'Нет'], markup)
     bot.send_message(message.chat.id, 'Для работы калькулятора нужно ввести значения и оператор.')
     bot.send_message(message.chat.id, 'Готовы приступить?', reply_markup=markup)
     bot.register_next_step_handler(message, calc_answer)
 
 def calc_answer(message):
     message_text = None
-    generate_buttons(['Да', 'Нет'], markup)
-    if message.text == 'Да' and not my_telebot.calc_command:
-        my_telebot.set_operation('Калькулятор')
-        bot.send_message(message.chat.id, 'Введите первое число')
-    if message_text != 'Да' or message_text != 'Нет' and not my_telebot.calc_command:
-        bot.send_message('Извини, я тебя не понял')
-        bot.register_next_step_handler(message, calc_answer)
+    if not my_telebot.calc_command and message.text != 'Да' or message.text == 'Нет':
         markup = types.ReplyKeyboardMarkup(row_width=2)
+        generate_buttons(['Да', 'Нет'], markup)
+        bot.send_message(message.chat.id, 'Извини, я тебя не понял', reply_markup=markup)
+        bot.register_next_step_handler(message, calc_answer)
+        return
+
+    if message.text == 'Да':
+        my_telebot.set_operation('Калькулятор')
+        message_text = my_telebot.run_calc()
+        if message_text != None:
+            bot.send_message(message.chat.id, message_text)
+            bot.register_next_step_handler(message, calc_answer)
+        else:
+            print('Не получен ответ, произошла ошибка')
+        return
+
+    elif message_text == 'Нет':
+        my_telebot.calc_command = None
+        return
+    my_telebot.set_current_message_text(message.text)
+    message_text = my_telebot.run_calc()
+
+    if message_text != None:
+        bot.send_message(message.chat.id, message_text)
+        bot.register_next_step_handler(message, calc_answer)
+    else:
+        print('Не получен ответ, произошла ошибка')
 
 # dollarex
 
@@ -57,8 +77,5 @@ def dollarex(message):
 def show_info(message):
     if message.text == 'info':
         bot.send_message(message.chat.id, "Что я могу: \n/calc - посчитать пример, \n/dollarex - курс доллара.")
-    if current_operation == 'Калькулятор':
-        calc_obj = calculator.Calculator()
-        bot.register_next_step_handler(message, lambda x: calculate(message, calc_obj))
 
 bot.polling(none_stop=True)

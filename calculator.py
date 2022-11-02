@@ -20,7 +20,6 @@ class Calculator:
         self.values.clear()
         self.exist_dot = False
         self.operator = None
-        self.update_text()
 
     def set_numbers(self, number):
         text_number = ''
@@ -36,16 +35,6 @@ class Calculator:
         else:
             self.values.append(str(number))
             self.operator = None
-        self.update_text()
-
-    def update_text(self):
-        if len(self.values) <= 0:
-            self.label.configure(text='0')
-            return
-
-        text = ''
-        for value in self.values:
-            text = text + value
 
     def set_operator(self, operator):
         if len(self.values) == 3:
@@ -55,20 +44,17 @@ class Calculator:
         if self.operator != None:
             self.operator = operator
             self.values[-1] = operator
-            self.update_text()
             return
         self.operator = operator
         if self.exist_dot == True:
             self.values[-1] = self.values[-1] + 0
         self.values.append(operator)
-        self.update_text()
 
     def set_point(self):
         if self.exist_dot == True:
             return
         if len(self.values) <= 0:
             self.values.append('0.')
-            self.update_text()
             return
         self.exist_dot = True
         self.values[-1] = self.values[-1] + '.'
@@ -101,7 +87,7 @@ class Calculator:
             if operator == '÷':
                 result = num1 / num2
             self.values.append(str(result))
-            self.update_text()
+            return result
         except Exception as error:
             print(error)
 
